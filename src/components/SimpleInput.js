@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
+import useInput from '../hooks/use-input'
 
 const SimpleInput = (props) => {
-  const [enteredName, setEnteredName] = useState('')
-  const [enteredNameTouched, setEnteredNameTouched] = useState(false)
+
+  const {
+    value: enteredValue, 
+    isValid: enteredNameIsValid,
+    hasError: nameInputError, 
+    valueChangedHandler: nameChangedHandler, 
+    inputBlurHandler: nameBlurHandler,
+    reset: resetNameInput
+  } = useInput(value => value.trim() !== '')
 
 
-  const enteredNameIsValid = enteredName.trim() !== ''
-  const nameInputValid = !enteredNameIsValid && enteredNameTouched
 
   let formIsValid = false
   
@@ -15,10 +21,6 @@ const SimpleInput = (props) => {
   }
     
 
-  const enteredNameHandler = (event) => {
-    setEnteredName(event.target.value)
-    
-   }
 
   const formSubmitHandler = (event) => {
     event.preventDefault()
@@ -29,32 +31,28 @@ const SimpleInput = (props) => {
     }
 
 
-    console.log(enteredName);
-    setEnteredName('')
+    console.log(enteredValue);
     formIsValid = false
-    setEnteredNameTouched(false)
+    resetNameInput()
   }
 
-  const nameInputBlurHandler = (event) => {
-    setEnteredNameTouched(true)
-
-     }
+     
 
 
-  const nameInputClasses = nameInputValid ? 'form-control invalid': 'form-control'
+  const nameInputClasses = nameInputError ? 'form-control invalid': 'form-control'
 
   return (
     <form  onSubmit={formSubmitHandler}>
       <div className={nameInputClasses}>
         <label htmlFor='name'>Your Name</label>
         <input 
-            onChange={enteredNameHandler}   
-            onBlur={nameInputBlurHandler}
+            onChange={nameChangedHandler}   
+            onBlur={nameBlurHandler}
             type='text' 
             id='name' 
-            value={enteredName}
+            value={enteredValue}
         />
-        {nameInputValid && <p className="error-text">Name must not be empty</p>}
+        {nameInputError && <p className="error-text">Name must not be empty</p>}
       </div>
       <div className="form-actions">
         <button disabled={!formIsValid}>Submit</button>
